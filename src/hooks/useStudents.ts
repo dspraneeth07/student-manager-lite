@@ -4,6 +4,7 @@ import type { Student } from "@/pages/Students";
 import type { Database } from "@/integrations/supabase/types";
 
 type DbStudent = Database['public']['Tables']['students']['Row'];
+type Tables = Database['public']['Tables'];
 
 export function useStudents() {
   const [students, setStudents] = useState<Student[]>([]);
@@ -37,15 +38,17 @@ export function useStudents() {
   const fetchStudents = async () => {
     const { data, error } = await supabase
       .from('students')
-      .select('*');
+      .select('*') as { data: DbStudent[] | null; error: Error | null };
 
     if (error) {
       console.error('Error fetching students:', error);
       return;
     }
 
+    if (!data) return;
+
     // Convert the data to match our Student type
-    const formattedStudents = (data as DbStudent[]).map(student => ({
+    const formattedStudents = data.map(student => ({
       id: student.id,
       name: student.name,
       class: student.class,
@@ -80,7 +83,7 @@ export function useStudents() {
         date_of_birth: data.dateOfBirth,
         blood_group: data.bloodGroup,
         gender: data.gender,
-      }]);
+      }] satisfies Partial<Tables['students']['Insert']>[]);
 
     if (error) throw error;
   };
@@ -101,7 +104,7 @@ export function useStudents() {
         date_of_birth: data.dateOfBirth,
         blood_group: data.bloodGroup,
         gender: data.gender,
-      })
+      } satisfies Tables['students']['Update'])
       .eq('id', id);
 
     if (error) throw error;
