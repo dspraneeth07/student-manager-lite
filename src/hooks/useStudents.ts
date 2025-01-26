@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Student } from "@/pages/Students";
+import type { Database } from "@/integrations/supabase/types";
+
+type DbStudent = Database['public']['Tables']['students']['Row'];
 
 export function useStudents() {
   const [students, setStudents] = useState<Student[]>([]);
@@ -42,7 +45,7 @@ export function useStudents() {
     }
 
     // Convert the data to match our Student type
-    const formattedStudents = data.map(student => ({
+    const formattedStudents = (data as DbStudent[]).map(student => ({
       id: student.id,
       name: student.name,
       class: student.class,
