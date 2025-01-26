@@ -15,6 +15,20 @@ import type { Student } from "@/pages/Students";
 // Helper function to convert Firestore data to our Student type
 const convertFirestoreData = (doc: QueryDocumentSnapshot) => {
   const data = doc.data();
+  // Convert Timestamp to string if present
+  const dateOfBirth = data.dateOfBirth instanceof Timestamp 
+    ? data.dateOfBirth.toDate().toISOString().split('T')[0]
+    : data.dateOfBirth || "";
+
+  // Convert any Timestamp fields to ISO string
+  const createdAt = data.createdAt instanceof Timestamp 
+    ? data.createdAt.toDate().toISOString()
+    : undefined;
+    
+  const updatedAt = data.updatedAt instanceof Timestamp 
+    ? data.updatedAt.toDate().toISOString()
+    : undefined;
+
   return {
     id: doc.id,
     name: data.name || "",
@@ -26,9 +40,11 @@ const convertFirestoreData = (doc: QueryDocumentSnapshot) => {
     email: data.email || "",
     parentName: data.parentName || "",
     parentPhone: data.parentPhone || "",
-    dateOfBirth: data.dateOfBirth || "",
+    dateOfBirth,
     bloodGroup: data.bloodGroup || "",
     gender: data.gender || "",
+    createdAt,
+    updatedAt,
   } as Student;
 };
 
