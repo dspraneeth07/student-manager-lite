@@ -12,6 +12,16 @@ import {
 import { Eye, Edit, Trash2, Plus } from "lucide-react";
 import { StudentModal } from "@/components/StudentModal";
 import { useStudents } from "@/hooks/useStudents";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export interface Student {
   id: string;
@@ -32,22 +42,38 @@ export interface Student {
 export default function Students() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [isViewMode, setIsViewMode] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState<Student | null>(null);
   const { toast } = useToast();
   const { students, addStudent, updateStudent, deleteStudent } = useStudents();
 
   const handleAdd = () => {
     setSelectedStudent(null);
+    setIsViewMode(false);
+    setIsModalOpen(true);
+  };
+
+  const handleView = (student: Student) => {
+    setSelectedStudent(student);
+    setIsViewMode(true);
     setIsModalOpen(true);
   };
 
   const handleEdit = (student: Student) => {
     setSelectedStudent(student);
+    setIsViewMode(false);
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDeleteClick = (student: Student) => {
+    setStudentToDelete(student);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!studentToDelete) return;
+
     try {
-      await deleteStudent(id);
+      await deleteStudent(studentToDelete.id);
       toast({
         title: "Success",
         description: "Student deleted successfully",
@@ -58,6 +84,8 @@ export default function Students() {
         title: "Error",
         description: "Failed to delete student",
       });
+    } finally {
+      setStudentToDelete(null);
     }
   };
 
@@ -74,7 +102,6 @@ export default function Students() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>ID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Class</TableHead>
               <TableHead>Section</TableHead>
@@ -85,7 +112,6 @@ export default function Students() {
           <TableBody>
             {students.map((student) => (
               <TableRow key={student.id}>
-                <TableCell>{student.id}</TableCell>
                 <TableCell>{student.name}</TableCell>
                 <TableCell>{student.class}</TableCell>
                 <TableCell>{student.section}</TableCell>
@@ -95,7 +121,7 @@ export default function Students() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleEdit(student)}
+                      onClick={() => handleView(student)}
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
@@ -109,7 +135,7 @@ export default function Students() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDelete(student.id)}
+                      onClick={() => handleDeleteClick(student)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -125,6 +151,7 @@ export default function Students() {
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
         student={selectedStudent}
+        viewOnly={isViewMode}
         onSubmit={async (data) => {
           try {
             if (selectedStudent) {
@@ -150,6 +177,21 @@ export default function Students() {
           }
         }}
       />
+
+      <AlertDialog open={!!studentToDelete} onOpenChange={() => setStudentToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the student's data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

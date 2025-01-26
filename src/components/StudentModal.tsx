@@ -21,6 +21,7 @@ interface StudentModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   student: Student | null;
+  viewOnly?: boolean;
   onSubmit: (data: Omit<Student, "id">) => Promise<void>;
 }
 
@@ -28,6 +29,7 @@ export function StudentModal({
   open,
   onOpenChange,
   student,
+  viewOnly = false,
   onSubmit,
 }: StudentModalProps) {
   const [formData, setFormData] = useState<Omit<Student, "id">>(
@@ -72,7 +74,7 @@ export function StudentModal({
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>
-            {student ? "Edit Student" : "Add New Student"}
+            {viewOnly ? "View Student" : student ? "Edit Student" : "Add New Student"}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -86,6 +88,7 @@ export function StudentModal({
                   setFormData({ ...formData, name: e.target.value })
                 }
                 required
+                readOnly={viewOnly}
               />
             </div>
             <div className="space-y-2">
@@ -97,6 +100,7 @@ export function StudentModal({
                   setFormData({ ...formData, class: e.target.value })
                 }
                 required
+                readOnly={viewOnly}
               />
             </div>
             <div className="space-y-2">
@@ -108,6 +112,7 @@ export function StudentModal({
                   setFormData({ ...formData, section: e.target.value })
                 }
                 required
+                readOnly={viewOnly}
               />
             </div>
             <div className="space-y-2">
@@ -119,6 +124,7 @@ export function StudentModal({
                   setFormData({ ...formData, rollNumber: e.target.value })
                 }
                 required
+                readOnly={viewOnly}
               />
             </div>
             <div className="space-y-2">
@@ -130,6 +136,7 @@ export function StudentModal({
                   setFormData({ ...formData, address: e.target.value })
                 }
                 required
+                readOnly={viewOnly}
               />
             </div>
             <div className="space-y-2">
@@ -141,6 +148,7 @@ export function StudentModal({
                   setFormData({ ...formData, phone: e.target.value })
                 }
                 required
+                readOnly={viewOnly}
               />
             </div>
             <div className="space-y-2">
@@ -153,6 +161,7 @@ export function StudentModal({
                   setFormData({ ...formData, email: e.target.value })
                 }
                 required
+                readOnly={viewOnly}
               />
             </div>
             <div className="space-y-2">
@@ -164,6 +173,7 @@ export function StudentModal({
                   setFormData({ ...formData, parentName: e.target.value })
                 }
                 required
+                readOnly={viewOnly}
               />
             </div>
             <div className="space-y-2">
@@ -175,6 +185,7 @@ export function StudentModal({
                   setFormData({ ...formData, parentPhone: e.target.value })
                 }
                 required
+                readOnly={viewOnly}
               />
             </div>
             <div className="space-y-2">
@@ -187,6 +198,7 @@ export function StudentModal({
                   setFormData({ ...formData, dateOfBirth: e.target.value })
                 }
                 required
+                readOnly={viewOnly}
               />
             </div>
             <div className="space-y-2">
@@ -196,6 +208,7 @@ export function StudentModal({
                 onValueChange={(value) =>
                   setFormData({ ...formData, bloodGroup: value })
                 }
+                disabled={viewOnly}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select blood group" />
@@ -219,6 +232,7 @@ export function StudentModal({
                 onValueChange={(value) =>
                   setFormData({ ...formData, gender: value })
                 }
+                disabled={viewOnly}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select gender" />
@@ -231,18 +245,31 @@ export function StudentModal({
               </Select>
             </div>
           </div>
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit">
-              {student ? "Update" : "Add"} Student
-            </Button>
-          </div>
+          {!viewOnly && (
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit">
+                {student ? "Update" : "Add"} Student
+              </Button>
+            </div>
+          )}
+          {viewOnly && (
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Close
+              </Button>
+            </div>
+          )}
         </form>
       </DialogContent>
     </Dialog>
