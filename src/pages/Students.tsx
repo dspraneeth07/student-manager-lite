@@ -89,6 +89,31 @@ export default function Students() {
     }
   };
 
+  const handleSubmit = async (data: Omit<Student, "id">) => {
+    try {
+      if (selectedStudent) {
+        await updateStudent(selectedStudent.id, data);
+        toast({
+          title: "Success",
+          description: "Student updated successfully",
+        });
+      } else {
+        await addStudent(data);
+        toast({
+          title: "Success",
+          description: "Student added successfully",
+        });
+      }
+      setIsModalOpen(false);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save student",
+      });
+    }
+  };
+
   return (
     <div className="p-8 animate-fadeIn">
       <div className="flex justify-between items-center mb-6">
@@ -152,30 +177,7 @@ export default function Students() {
         onOpenChange={setIsModalOpen}
         student={selectedStudent}
         viewOnly={isViewMode}
-        onSubmit={async (data) => {
-          try {
-            if (selectedStudent) {
-              await updateStudent(selectedStudent.id, data);
-              toast({
-                title: "Success",
-                description: "Student updated successfully",
-              });
-            } else {
-              await addStudent(data);
-              toast({
-                title: "Success",
-                description: "Student added successfully",
-              });
-            }
-            setIsModalOpen(false);
-          } catch (error) {
-            toast({
-              variant: "destructive",
-              title: "Error",
-              description: "Failed to save student",
-            });
-          }
-        }}
+        onSubmit={handleSubmit}
       />
 
       <AlertDialog open={!!studentToDelete} onOpenChange={() => setStudentToDelete(null)}>
